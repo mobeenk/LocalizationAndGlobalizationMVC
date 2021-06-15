@@ -1,0 +1,29 @@
+﻿@using System.Net.Mime
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer localizer
+@inject Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>  locOptions 
+
+@{
+    var culture = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+    var cultureList = locOptions.Value.SupportedUICultures.Select(x =>
+        new SelectListItem
+        {
+            Value = x.Name,
+            Text = localizer.GetString(x.Name)
+        }).ToList();
+    //to return back to same url after changing language
+    var returnUrl = string.IsNullOrWhiteSpace(Context.Request.Path) ?
+        "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+}
+
+<div>
+    <form asp-controller="Home" asp-action="CultureManagment"
+        asp-route-returnUrl="@returnUrl"  method="post">
+        <select name="culture"
+                asp-for="@culture.RequestCulture.UICulture.Name"
+                asp-items="cultureList"
+                onchange="this.form.submit()"
+                >
+           
+        </select>
+    </form>
+</div>
